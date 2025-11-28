@@ -9,7 +9,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/mobile/v1/query-bill",
+      "UpstreamPathTemplate": "/v1/MobileProviderApp/query-bill",
       "UpstreamHttpMethod": [ "GET" ],
       "AddHeadersToRequest": {
         "X-Subscriber-No": "{QueryString.subscriberNo}"
@@ -31,7 +31,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/mobile/v1/query-bill-detailed",
+      "UpstreamPathTemplate": "/v1/MobileProviderApp/query-bill-detailed",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -43,7 +43,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/bank/v1/query-bill",
+      "UpstreamPathTemplate": "/v1/BankingApp/query-bill",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -55,7 +55,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/web/v1/pay-bill",
+      "UpstreamPathTemplate": "/api/v1/WebSite/pay-bill",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -67,7 +67,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/admin/v1/add-bill",
+      "UpstreamPathTemplate": "/api/v1/WebSite/admin/add-bill",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -79,7 +79,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/admin/v1/add-bill/batch",
+      "UpstreamPathTemplate": "/api/v1/WebSite/admin/add-bill/batch",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -91,7 +91,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/token/v1",
+      "UpstreamPathTemplate": "/v1/Token/token",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
