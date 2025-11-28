@@ -1,67 +1,62 @@
 using AspNetCoreRateLimit;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Ocelot configuration
-builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
-
-builder.Services.AddOcelot(builder.Configuration);
-
+// Add controllers for Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddSwaggerForOcelot(builder.Configuration);
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "Mobile Billing Gateway", Version = "v1" });
+});
 
+// Add Ocelot configuration
+builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+builder.Services.AddOcelot(builder.Configuration);
+
+// Rate limiting
 builder.Services.AddMemoryCache();
+builder.Services.AddInMemoryRateLimiting();
 builder.Services.Configure<IpRateLimitOptions>(options =>
 {
     options.EnableEndpointRateLimiting = true;
     options.StackBlockedRequests = false;
     options.HttpStatusCode = 429;
-    options.RealIpHeader = "X-Real-IP";
-    options.ClientIdHeader = "X-ClientId"; // This will be our subscriberNo
+    options.ClientIdHeader = "X-ClientId"; // We will use subscriberNo
     options.GeneralRules = new List<RateLimitRule>
     {
         new RateLimitRule
         {
-            Endpoint = "/v1/MobileProviderApp/query-bill", // Only limit this endpoint
+            Endpoint = "/mobile/v1/query-bill",
             Period = "1d",
             Limit = 3
         }
     };
 });
-builder.Services.AddInMemoryRateLimiting();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
 var app = builder.Build();
 
-app.MapControllers();
+app.UseRouting();
 
-
-//logging middleware
+// Logging middleware
 app.Use(async (context, next) =>
 {
     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
     var logFile = "gateway-logs.txt";
 
-    // Request-level logging
     var request = context.Request;
     var requestTime = DateTime.UtcNow;
     var method = request.Method;
     var path = request.Path + request.QueryString;
     var headers = request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
     var sourceIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-
-    // Read request body size
-    long? requestSize = null;
-    if (request.ContentLength.HasValue)
-        requestSize = request.ContentLength.Value;
-
-    // Authentication success (optional if you use JWT)
+    var requestSize = request.ContentLength ?? 0;
     var authSucceeded = context.User?.Identity?.IsAuthenticated ?? false;
+
 
     Console.WriteLine("----- Request -----");
     Console.WriteLine($"Timestamp: {requestTime:O}");
@@ -72,20 +67,17 @@ app.Use(async (context, next) =>
     Console.WriteLine($"Request size: {requestSize} bytes");
     Console.WriteLine($"Auth succeeded: {authSucceeded}");
 
-    await File.AppendAllTextAsync(logFile, $"Request: {method} {path} from {sourceIp} at {requestTime:O}\n");
+    await File.AppendAllTextAsync(logFile, $"[{requestTime:O}] Request: {method} {path} from {sourceIp}, Auth: {authSucceeded}, Size: {requestSize} bytes\n");
 
-    // Add header for Rate Limit
-    if (context.Request.Path.StartsWithSegments("/v1/MobileProviderApp/query-bill"))
+    // Add X-ClientId header for rate limiting
+    if (context.Request.Path.StartsWithSegments("/mobile/v1/query-bill"))
     {
         var subscriberNo = context.Request.Query["subscriberNo"].FirstOrDefault() ?? "unknown";
         context.Request.Headers["X-ClientId"] = subscriberNo;
-
     }
 
-    // Call downstream
     await next();
 
-    // Response-level logging
     stopwatch.Stop();
     var response = context.Response;
     var statusCode = response.StatusCode;
@@ -99,18 +91,26 @@ app.Use(async (context, next) =>
 
     Console.WriteLine("-------------------");
 
-    await File.AppendAllTextAsync(logFile, $"Response: {statusCode} in {latencyMs} ms, {responseSize} bytes\n\n");
-
-
+    await File.AppendAllTextAsync(logFile, $"[{DateTime.UtcNow:O}] Response: {statusCode}, Size: {responseSize} bytes, Latency: {latencyMs} ms\n\n");
 });
 
-
-app.UseSwagger();
-app.UseSwaggerForOcelotUI();
-
-// Enable rate limiting
+// Rate limiting
 app.UseIpRateLimiting();
 
+// Swagger UI
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mobile Billing Gateway v1");
+});
+
+// Map controllers (required for Swagger)
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
+// Ocelot routing
 await app.UseOcelot();
 
 app.Run();
