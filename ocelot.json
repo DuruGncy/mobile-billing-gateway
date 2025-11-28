@@ -1,0 +1,41 @@
+﻿{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/v1/bills",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "bill-pay-api.onrender.com",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/mobile/v1/bills",
+      "UpstreamHttpMethod": [ "GET" ],
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "1d",
+        "Limit": 3
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/bills/{subscriberNo}/{month}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "bill-pay-api.onrender.com",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/mobile/v1/bills/{subscriberNo}/{month}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "1d",
+        "Limit": 3
+      }
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://YOUR_GATEWAY_ON_RENDER"
+  }
+}
