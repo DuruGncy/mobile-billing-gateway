@@ -45,7 +45,14 @@ app.Use(async (context, next) =>
     Console.WriteLine($"Auth succeeded: {authSucceeded}");
 
     await File.AppendAllTextAsync(logFile, $"Request: {method} {path} from {sourceIp} at {requestTime:O}\n");
-    
+
+    // Add header for Rate Limit
+    if (context.Request.Path.StartsWithSegments("/v1/MobileProviderApp/query-bill"))
+    {
+        var subscriberNo = context.Request.Query["subscriberNo"].FirstOrDefault() ?? "unknown";
+        context.Request.Headers["X-Subscriber-No"] = subscriberNo;
+    }
+
     // Call downstream
     await next();
 
