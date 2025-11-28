@@ -1,16 +1,24 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+﻿# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
-COPY *.csproj .
+# Copy csproj and restore first
+COPY BillingGateway.csproj .
 RUN dotnet restore
 
+# Copy everything else
 COPY . .
+
+# Publish the project
 RUN dotnet publish -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
+
 COPY --from=build /app/publish .
+
 EXPOSE 80
 ENV ASPNETCORE_URLS=http://+:80
 
-ENTRYPOINT ["dotnet", "MobileBillingGateway.dll"]
+ENTRYPOINT ["dotnet", "BillingGateway.dll"]
