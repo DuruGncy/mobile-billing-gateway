@@ -1,7 +1,7 @@
 ﻿{
   "Routes": [
     {
-      "DownstreamPathTemplate": "/api/v1/bills",
+      "DownstreamPathTemplate": "/v1/MobileProviderApp/query-bill",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -9,7 +9,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/mobile/v1/bills",
+      "UpstreamPathTemplate": "/mobile/v1/query-bill",
       "UpstreamHttpMethod": [ "GET" ],
       "RateLimitOptions": {
         "EnableRateLimiting": true,
@@ -18,7 +18,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/bills/{subscriberNo}/{month}",
+      "DownstreamPathTemplate": "/v1/MobileProviderApp/query-bill-detailed",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -26,16 +26,71 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/mobile/v1/bills/{subscriberNo}/{month}",
-      "UpstreamHttpMethod": [ "GET" ],
-      "RateLimitOptions": {
-        "EnableRateLimiting": true,
-        "Period": "1d",
-        "Limit": 3
-      }
+      "UpstreamPathTemplate": "/mobile/v1/query-bill-detailed",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/v1/BankingApp/query-bill",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "bill-pay-api.onrender.com",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/bank/v1/query-bill",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/WebSite/pay-bill",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "bill-pay-api.onrender.com",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/web/v1/pay-bill",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/WebSite/admin/add-bill",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "bill-pay-api.onrender.com",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/v1/add-bill",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/WebSite/admin/add-bill/batch",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "bill-pay-api.onrender.com",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/v1/add-bill/batch",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/v1/Token/token",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "bill-pay-api.onrender.com",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/token/v1",
+      "UpstreamHttpMethod": [ "POST" ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://YOUR_GATEWAY_ON_RENDER"
+    "BaseUrl": "https://mobile-billing-gateway-2kqo.onrender.com"
   }
 }
