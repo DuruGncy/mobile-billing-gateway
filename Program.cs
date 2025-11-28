@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using System.IO;
@@ -8,6 +9,30 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
 builder.Services.AddOcelot(builder.Configuration);
+
+builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerForOcelot(builder.Configuration);
+
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(options =>
+{
+    options.EnableEndpointRateLimiting = true;
+    options.StackBlockedRequests = false;
+    options.HttpStatusCode = 429;
+    options.RealIpHeader = "X-Real-IP";
+    options.ClientIdHeader = "X-ClientId"; // This will be our subscriberNo
+    options.GeneralRules = new List<RateLimitRule>
+    {
+        new RateLimitRule
+        {
+            Endpoint = "/v1/MobileProviderApp/query-bill", // Only limit this endpoint
+            Period = "1d",
+            Limit = 3
+        }
+    };
+});
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
 var app = builder.Build();
 
@@ -50,7 +75,8 @@ app.Use(async (context, next) =>
     if (context.Request.Path.StartsWithSegments("/v1/MobileProviderApp/query-bill"))
     {
         var subscriberNo = context.Request.Query["subscriberNo"].FirstOrDefault() ?? "unknown";
-        context.Request.Headers["X-Subscriber-No"] = subscriberNo;
+        context.Request.Headers["X-ClientId"] = subscriberNo;
+
     }
 
     // Call downstream
@@ -75,6 +101,12 @@ app.Use(async (context, next) =>
 
 });
 
+
+app.UseSwagger();
+app.UseSwaggerForOcelotUI();
+
+// Enable rate limiting
+app.UseIpRateLimiting();
 
 await app.UseOcelot();
 

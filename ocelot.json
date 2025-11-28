@@ -9,7 +9,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/v1/MobileProviderApp/query-bill",
+      "UpstreamPathTemplate": "/mobile/v1/query-bill",
       "UpstreamHttpMethod": [ "GET" ],
       "AddHeadersToRequest": {
         "X-Subscriber-No": "{QueryString.subscriberNo}"
@@ -31,7 +31,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/v1/MobileProviderApp/query-bill-detailed",
+      "UpstreamPathTemplate": "/mobile/v1/query-bill-detailed",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -43,7 +43,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/v1/BankingApp/query-bill",
+      "UpstreamPathTemplate": "/bank/v1/query-bill",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -55,7 +55,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/api/v1/WebSite/pay-bill",
+      "UpstreamPathTemplate": "/web/v1/pay-bill",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -67,7 +67,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/api/v1/WebSite/admin/add-bill",
+      "UpstreamPathTemplate": "/admin/v1/add-bill",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -79,7 +79,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/api/v1/WebSite/admin/add-bill/batch",
+      "UpstreamPathTemplate": "/admin/v1/add-bill/batch",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -91,7 +91,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/v1/Token/token",
+      "UpstreamPathTemplate": "/token/v1",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -105,6 +105,18 @@
       ],
       "UpstreamPathTemplate": "/swagger/{everything}",
       "UpstreamHttpMethod": [ "GET" ]
+    }
+  ],
+  "SwaggerEndPoints": [
+    {
+      "Key": "MobileProviderAPI",
+      "Config": [
+        {
+          "Name": "Mobile Provider API",
+          "Version": "v1",
+          "Url": "http://bill-pay-api.onrender.com/swagger/v1/swagger.json"
+        }
+      ]
     }
   ],
   "GlobalConfiguration": {

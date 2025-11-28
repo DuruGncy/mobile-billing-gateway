@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BillingGateway")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6d4da8ee6d744826335f266f219b96508b6cf11e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0c8803da428653aaaf71dfd2e387d40e307b3d9c")]
 [assembly: System.Reflection.AssemblyProductAttribute("BillingGateway")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BillingGateway")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
