@@ -11,10 +11,15 @@
       ],
       "UpstreamPathTemplate": "/mobile/v1/query-bill",
       "UpstreamHttpMethod": [ "GET" ],
+      "AddHeadersToRequest": {
+        "X-Subscriber-No": "{QueryString.subscriberNo}"
+      },
       "RateLimitOptions": {
         "EnableRateLimiting": true,
         "Period": "1d",
-        "Limit": 3
+        "Limit": 3,
+        "ClientIdHeader": "X-Subscriber-No",
+        "QuotaExceededMessage": "You have reached the limit of 3 queries per day for this subscriber"
       }
     },
     {
