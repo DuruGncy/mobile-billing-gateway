@@ -1,3 +1,4 @@
+using BillingGateway.Middelware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,71 +56,7 @@ app.UseRouting();
 
 app.MapControllers(); // Swagger endpoints
 
-// --- Logging + manual rate limiting middleware ---
-app.Use(async (context, next) =>
-{
-    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-    var logFile = "gateway-logs.txt";
-
-    var request = context.Request;
-    var requestTime = DateTime.UtcNow;
-    var method = request.Method;
-    var path = request.Path + request.QueryString;
-    var sourceIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-
-    Console.WriteLine("----- Request -----");
-    Console.WriteLine($"Timestamp: {requestTime:O}");
-    Console.WriteLine($"Method: {method}");
-    Console.WriteLine($"Path: {path}");
-    Console.WriteLine($"Source IP: {sourceIp}");
-
-    // Manual rate limiting for /query-bill
-    if (context.Request.Path.Equals("/api/v1/MobileProviderApp/query-bill", StringComparison.OrdinalIgnoreCase))
-    {
-        var subscriberNo = context.Request.Query["subscriberNo"].FirstOrDefault() ?? "unknown";
-        var cacheKey = $"rate_limit:{subscriberNo}:{DateTime.UtcNow:yyyyMMdd}";
-        var memoryCache = app.Services.GetRequiredService<IMemoryCache>();
-
-        var count = memoryCache.GetOrCreate(cacheKey, entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
-            return 0;
-        });
-
-        if (count >= 3)
-        {
-            context.Response.StatusCode = 429;
-            await context.Response.WriteAsync("Rate limit exceeded");
-            return;
-        }
-
-        memoryCache.Set(cacheKey, count + 1);
-    }
-
-    try
-    {
-        await next(); // let the request flow to the controllers
-    }
-    catch (Exception ex)
-    {
-        // Log as a "mapping template failure"
-        Console.WriteLine("Mapping/Transformation failure:");
-        Console.WriteLine($"Path: {context.Request.Path}");
-        Console.WriteLine($"Exception: {ex}");
-        context.Response.StatusCode = 400; // Bad Request for mapping errors
-        await context.Response.WriteAsync("Mapping template error");
-    }
-
-    stopwatch.Stop();
-    var response = context.Response;
-    var statusCode = response.StatusCode;
-    var latencyMs = stopwatch.ElapsedMilliseconds;
-
-    Console.WriteLine("----- Response -----");
-    Console.WriteLine($"Status code: {statusCode}");
-    Console.WriteLine($"Latency: {latencyMs} ms");
-    Console.WriteLine("-------------------");
-});
+app.UseGatewayMiddleware();
 
 // Swagger UI — load the API's swagger.json directly from the upstream API
 app.UseSwaggerUI(c =>
