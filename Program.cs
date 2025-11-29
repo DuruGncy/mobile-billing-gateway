@@ -7,10 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add controllers for Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new() { Title = "Mobile Billing Gateway", Version = "v1" });
-});
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddHttpClient("swaggerClient");
 
 // Add Ocelot configuration
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
@@ -98,6 +97,17 @@ app.Use(async (context, next) =>
 app.UseIpRateLimiting();
 
 // Swagger UI
+app.MapGet("/swagger/v1/swagger.json", async (IHttpClientFactory httpClientFactory) =>
+{
+    var client = httpClientFactory.CreateClient("swaggerClient");
+
+    var json = await client.GetStringAsync(
+        "https://bill-pay-api.onrender.com/swagger/v1/swagger.json"
+    );
+
+    return Results.Content(json, "application/json");
+});
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
