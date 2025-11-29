@@ -1,7 +1,7 @@
 ﻿{
   "Routes": [
     {
-      "DownstreamPathTemplate": "/v1/MobileProviderApp/query-bill",
+      "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -9,88 +9,10 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/mobile/v1/query-bill",
-      "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "mobileProvider"
-    },
-    {
-      "DownstreamPathTemplate": "/v1/MobileProviderApp/query-bill-detailed",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "bill-pay-api.onrender.com",
-          "Port": 443
-        }
-      ],
-      "UpstreamPathTemplate": "/mobile/v1/query-bill-detailed",
-      "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "mobileProvider"
-    },
-    {
-      "DownstreamPathTemplate": "/v1/BankingApp/query-bill",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "bill-pay-api.onrender.com",
-          "Port": 443
-        }
-      ],
-      "UpstreamPathTemplate": "/bank/v1/query-bill",
-      "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "banking"
-    },
-    {
-      "DownstreamPathTemplate": "/api/v1/WebSite/pay-bill",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "bill-pay-api.onrender.com",
-          "Port": 443
-        }
-      ],
-      "UpstreamPathTemplate": "/web/v1/pay-bill",
-      "UpstreamHttpMethod": [ "POST" ],
-      "SwaggerKey": "website"
-    },
-    {
-      "DownstreamPathTemplate": "/api/v1/WebSite/admin/add-bill",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "bill-pay-api.onrender.com",
-          "Port": 443
-        }
-      ],
-      "UpstreamPathTemplate": "/admin/v1/add-bill",
-      "UpstreamHttpMethod": [ "POST" ],
-      "SwaggerKey": "website"
-    },
-    {
-      "DownstreamPathTemplate": "/api/v1/WebSite/admin/add-bill/batch",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "bill-pay-api.onrender.com",
-          "Port": 443
-        }
-      ],
-      "UpstreamPathTemplate": "/admin/v1/add-bill/batch",
-      "UpstreamHttpMethod": [ "POST" ],
-      "SwaggerKey": "website"
-    },
-    {
-      "DownstreamPathTemplate": "/v1/Token/token",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "bill-pay-api.onrender.com",
-          "Port": 443
-        }
-      ],
-      "UpstreamPathTemplate": "/token/v1",
-      "UpstreamHttpMethod": [ "POST" ],
-      "SwaggerKey": "token"
-    },
+      "UpstreamPathTemplate": "/api/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+    }
+
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "https",
@@ -111,36 +33,6 @@
       "Config": [
         {
           "Name": "Mobile Provider API",
-          "Version": "v1",
-          "Url": "https://bill-pay-api.onrender.com/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "banking",
-      "Config": [
-        {
-          "Name": "Banking API",
-          "Version": "v1",
-          "Url": "https://bill-pay-api.onrender.com/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "website",
-      "Config": [
-        {
-          "Name": "Website API",
-          "Version": "v1",
-          "Url": "https://bill-pay-api.onrender.com/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "token",
-      "Config": [
-        {
-          "Name": "Token API",
           "Version": "v1",
           "Url": "https://bill-pay-api.onrender.com/swagger/v1/swagger.json"
         }

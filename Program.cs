@@ -29,7 +29,7 @@ builder.Services.Configure<IpRateLimitOptions>(options =>
     {
         new RateLimitRule
         {
-            Endpoint = "/mobile/v1/query-bill",
+            Endpoint = "/api/v1/MobileProviderApp/query-bill",
             Period = "1d",
             Limit = 3
         }
