@@ -69,7 +69,7 @@ app.Use(async (context, next) =>
     await File.AppendAllTextAsync(logFile, $"[{requestTime:O}] Request: {method} {path} from {sourceIp}, Auth: {authSucceeded}, Size: {requestSize} bytes\n");
 
     // Add X-ClientId header for rate limiting
-    if (context.Request.Path.StartsWithSegments("/mobile/v1/query-bill"))
+    if (context.Request.Path.StartsWithSegments("/api/v1/MobileProviderApp/query-bil"))
     {
         var subscriberNo = context.Request.Query["subscriberNo"].FirstOrDefault() ?? "unknown";
         context.Request.Headers["X-ClientId"] = subscriberNo;
