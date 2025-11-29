@@ -18,13 +18,13 @@ builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 // Rate limiting
 builder.Services.AddMemoryCache();
-builder.Services.AddInMemoryRateLimiting();
-builder.Services.Configure<IpRateLimitOptions>(options =>
+builder.Services.AddInMemoryRateLimiting(); // client-based stores and counters
+builder.Services.Configure<ClientRateLimitOptions>(options =>
 {
     options.EnableEndpointRateLimiting = true;
     options.StackBlockedRequests = false;
     options.HttpStatusCode = 429;
-    options.ClientIdHeader = "X-ClientId"; // We will use subscriberNo
+    options.ClientIdHeader = "X-ClientId"; // header you set in middleware
     options.GeneralRules = new List<RateLimitRule>
     {
         new RateLimitRule
@@ -96,7 +96,7 @@ app.Use(async (context, next) =>
 });
 
 // Rate limiting
-app.UseIpRateLimiting();
+app.UseClientRateLimiting();
 
 // Swagger UI for Ocelot
 app.UseSwaggerForOcelotUI(opt =>
