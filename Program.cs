@@ -7,8 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Required for SwaggerForOcelot
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer(); // adds IApiDescriptionGroupCollectionProvider
-builder.Services.AddSwaggerGen(); // must be here, even if gateway itself has no controllers
-
+builder.Services.AddSwaggerGen(); // must be here even if gateway has no controllers
 
 // Add Ocelot configuration
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
@@ -30,7 +29,7 @@ builder.Services.Configure<IpRateLimitOptions>(options =>
     {
         new RateLimitRule
         {
-            Endpoint = "/v1/MobileProviderApp/query-bill",
+            Endpoint = "/mobile/v1/query-bill",
             Period = "1d",
             Limit = 3
         }
@@ -42,7 +41,7 @@ var app = builder.Build();
 
 app.UseRouting();
 
-// Logging middleware
+// --- Logging middleware (keep exactly as-is) ---
 app.Use(async (context, next) =>
 {
     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -55,9 +54,8 @@ app.Use(async (context, next) =>
     var path = request.Path + request.QueryString;
     var headers = request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
     var sourceIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-    var requestSize = request.ContentLength ?? 0;
+    var requestSize = context.ContentLength ?? 0;
     var authSucceeded = context.User?.Identity?.IsAuthenticated ?? false;
-
 
     Console.WriteLine("----- Request -----");
     Console.WriteLine($"Timestamp: {requestTime:O}");
@@ -89,7 +87,6 @@ app.Use(async (context, next) =>
     Console.WriteLine($"Status code: {statusCode}");
     Console.WriteLine($"Latency: {latencyMs} ms");
     Console.WriteLine($"Response size: {responseSize} bytes");
-
     Console.WriteLine("-------------------");
 
     await File.AppendAllTextAsync(logFile, $"[{DateTime.UtcNow:O}] Response: {statusCode}, Size: {responseSize} bytes, Latency: {latencyMs} ms\n\n");
@@ -98,13 +95,15 @@ app.Use(async (context, next) =>
 // Rate limiting
 app.UseIpRateLimiting();
 
-
+// Swagger UI for Ocelot
 app.UseSwaggerForOcelotUI(opt =>
 {
     opt.PathToSwaggerGenerator = "/swagger/docs";
+    // optional: add downstream auth headers if needed
+    // opt.DownstreamSwaggerHeaders = new[] { new KeyValuePair<string,string>("Auth-Key","AuthValue") };
 });
 
-// Ocelot routing
+// Ocelot routing (must be last)
 await app.UseOcelot();
 
 app.Run();
