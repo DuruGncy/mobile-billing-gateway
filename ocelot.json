@@ -24,24 +24,6 @@
       ],
       "UpstreamPathTemplate": "/api/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/v1/MobileProviderApp/query-bill",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "bill-pay-api.onrender.com",
-          "Port": 443
-        }
-      ],
-      "UpstreamPathTemplate": "/api/v1/MobileProviderApp/query-bill",
-      "UpstreamHttpMethod": [ "GET" ],
-      "RateLimitOptions": {
-        "EnableRateLimiting": true,
-        "ClientIdHeader": "X-SubscriberNo",
-        "Period": "1d",
-        "Limit": 3
-      }
     }
   ],
   "SwaggerEndPoints": [

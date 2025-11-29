@@ -69,10 +69,10 @@ app.Use(async (context, next) =>
     Console.WriteLine($"Request size: {requestSize} bytes");
     Console.WriteLine($"Auth succeeded: {authSucceeded}");
 
-    //await File.AppendAllTextAsync(logFile, $"[{requestTime:O}] Request: {method} {path} from {sourceIp}, Auth: {authSucceeded}, Size: {requestSize} bytes\n");
+//await File.AppendAllTextAsync(logFile, $"[{requestTime:O}] Request: {method} {path} from {sourceIp}, Auth: {authSucceeded}, Size: {requestSize} bytes\n");
 
-    // Add X-ClientId header for rate limiting
-    if (context.Request.Path.StartsWithSegments("/api/v1/MobileProviderApp/query-bill"))
+// Add X-ClientId header for rate limiting
+    if (context.Request.Path.Equals("/api/v1/MobileProviderApp/query-bill", StringComparison.OrdinalIgnoreCase))
     {
         var subscriberNo = context.Request.Query["subscriberNo"].FirstOrDefault() ?? "unknown";
         var key = $"limit:{subscriberNo}:{DateTime.UtcNow:yyyyMMdd}";
