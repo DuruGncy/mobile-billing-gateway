@@ -90,6 +90,19 @@
       "UpstreamPathTemplate": "/token/v1",
       "UpstreamHttpMethod": [ "POST" ],
       "SwaggerKey": "token"
+    },
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "bill-pay-api.onrender.com",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/swagger/v1/swagger.json",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "mobileProvider"
     }
   ],
   "SwaggerEndPoints": [

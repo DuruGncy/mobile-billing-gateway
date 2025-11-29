@@ -99,9 +99,8 @@ app.UseIpRateLimiting();
 app.UseSwaggerForOcelotUI(opt =>
 {
     opt.PathToSwaggerGenerator = "/swagger/docs";
-    // optional: add downstream auth headers if needed
-    // opt.DownstreamSwaggerHeaders = new[] { new KeyValuePair<string,string>("Auth-Key","AuthValue") };
 });
+
 
 // Ocelot routing (must be last)
 await app.UseOcelot();
