@@ -1,4 +1,5 @@
 using BillingGateway.Middelware;
+using Microsoft.OpenApi.Models;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Transforms;
 
@@ -45,6 +46,34 @@ builder.Services.AddReverseProxy()
             }
         }
     });
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Mobile Provider API Gateway",
+        Version = "v1"
+    });
+
+    // JWT Bearer support
+    var jwtScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer {token}'"
+    };
+    c.AddSecurityDefinition("Bearer", jwtScheme);
+
+    // Require JWT for endpoints that need authorization
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtScheme, new string[] {} }
+    });
+});
+
 
 var app = builder.Build();
 
