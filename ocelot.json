@@ -94,8 +94,10 @@
           "Version": "v1",
           "Url": "https://bill-pay-api.onrender.com/swagger/v1/swagger.json"
         }
-      ],
-      "GlobalConfiguration": {
-        "BaseUrl": "https://mobile-billing-gateway-2kqo.onrender.com"
-      }
+      ]
     }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://mobile-billing-gateway-2kqo.onrender.com"
+  }
+}
