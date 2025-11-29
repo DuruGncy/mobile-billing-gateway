@@ -6,8 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add controllers for Swagger
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
 
 builder.Services.AddHttpClient("swaggerClient");
 
@@ -108,10 +107,9 @@ app.MapGet("/swagger/v1/swagger.json", async (IHttpClientFactory httpClientFacto
     return Results.Content(json, "application/json");
 });
 
-app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mobile Billing Gateway v1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mobile Billing API");
 });
 
 // Map controllers (required for Swagger)
