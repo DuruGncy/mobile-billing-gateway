@@ -85,7 +85,17 @@
       "UpstreamHttpMethod": [ "POST" ]
     }
   ],
-  "GlobalConfiguration": {
-    "BaseUrl": "https://mobile-billing-gateway-2kqo.onrender.com"
-  }
-}
+  "SwaggerEndPoints": [
+    {
+      "Key": "MobileProviderAPI",
+      "Config": [
+        {
+          "Name": "Mobile Provider API",
+          "Version": "v1",
+          "Url": "https://bill-pay-api.onrender.com/swagger/v1/swagger.json"
+        }
+      ],
+      "GlobalConfiguration": {
+        "BaseUrl": "https://mobile-billing-gateway-2kqo.onrender.com"
+      }
+    }

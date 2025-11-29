@@ -4,15 +4,12 @@ using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add controllers for Swagger
-builder.Services.AddControllers();
-
-
-builder.Services.AddHttpClient("swaggerClient");
-
 // Add Ocelot configuration
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 builder.Services.AddOcelot(builder.Configuration);
+
+// Swagger for Ocelot
+builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 // Rate limiting
 builder.Services.AddMemoryCache();
@@ -27,7 +24,7 @@ builder.Services.Configure<IpRateLimitOptions>(options =>
     {
         new RateLimitRule
         {
-            Endpoint = "/mobile/v1/query-bill",
+            Endpoint = "/v1/MobileProviderApp/query-bill",
             Period = "1d",
             Limit = 3
         }
@@ -95,27 +92,11 @@ app.Use(async (context, next) =>
 // Rate limiting
 app.UseIpRateLimiting();
 
-// Swagger UI
-app.MapGet("/swagger/v1/swagger.json", async (IHttpClientFactory httpClientFactory) =>
+
+app.UseSwagger();
+app.UseSwaggerForOcelotUI(opt =>
 {
-    var client = httpClientFactory.CreateClient("swaggerClient");
-
-    var json = await client.GetStringAsync(
-        "https://bill-pay-api.onrender.com/swagger/v1/swagger.json"
-    );
-
-    return Results.Content(json, "application/json");
-});
-
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mobile Billing API");
-});
-
-// Map controllers (required for Swagger)
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
+    opt.PathToSwaggerGenerator = "/swagger/docs";
 });
 
 // Ocelot routing
