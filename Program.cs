@@ -4,6 +4,12 @@ using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Required for SwaggerForOcelot
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer(); // adds IApiDescriptionGroupCollectionProvider
+builder.Services.AddSwaggerGen(); // must be here, even if gateway itself has no controllers
+
+
 // Add Ocelot configuration
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 builder.Services.AddOcelot(builder.Configuration);
@@ -93,7 +99,6 @@ app.Use(async (context, next) =>
 app.UseIpRateLimiting();
 
 
-app.UseSwagger();
 app.UseSwaggerForOcelotUI(opt =>
 {
     opt.PathToSwaggerGenerator = "/swagger/docs";
