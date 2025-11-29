@@ -1,4 +1,5 @@
 using AspNetCoreRateLimit;
+using Microsoft.Extensions.Caching.Memory;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
@@ -74,8 +75,24 @@ app.Use(async (context, next) =>
     if (context.Request.Path.StartsWithSegments("/api/v1/MobileProviderApp/query-bill"))
     {
         var subscriberNo = context.Request.Query["subscriberNo"].FirstOrDefault() ?? "unknown";
-        context.Request.Headers["X-ClientId"] = subscriberNo;
+        var key = $"limit:{subscriberNo}:{DateTime.UtcNow:yyyyMMdd}";
+
+        var count = app.Services.GetRequiredService<IMemoryCache>().GetOrCreate(key, entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
+            return 0;
+        });
+
+        if (count >= 3)
+        {
+            context.Response.StatusCode = 429;
+            await context.Response.WriteAsync("Rate limit exceeded");
+            return;
+        }
+
+        app.Services.GetRequiredService<IMemoryCache>().Set(key, count + 1);
     }
+
 
 
     await next();
