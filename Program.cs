@@ -10,7 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Required for Swagger UI
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 // Memory cache for rate limiting
 builder.Services.AddMemoryCache();
@@ -110,11 +109,10 @@ app.Use(async (context, next) =>
     Console.WriteLine("-------------------");
 });
 
-// Swagger UI
-app.UseSwagger();
+// Swagger UI — load the API's swagger.json directly from the upstream API
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mobile Provider API v1");
+    c.SwaggerEndpoint("https://bill-pay-api.onrender.com/swagger/v1/swagger.json", "Mobile Provider API v1");
 });
 
 // Reverse proxy (YARP)
