@@ -26,7 +26,7 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
     },
     {
-      "DownstreamPathTemplate": "api/v1/MobileProviderApp/query-bill",
+      "DownstreamPathTemplate": "/api/v1/MobileProviderApp/query-bill",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
