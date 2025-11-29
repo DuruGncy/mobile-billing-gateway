@@ -1,5 +1,6 @@
 using BillingGateway.Middelware;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Transforms;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,17 @@ builder.Services.AddReverseProxy()
                 { "destination1", new DestinationConfig { Address = "https://bill-pay-api.onrender.com/" } }
             }
         }
+    })
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .AddTransforms(builderContext =>
+    {
+        builderContext.AddRequestTransform(async transformContext =>
+        {
+            if (transformContext.HttpContext.Request.Headers.TryGetValue("Authorization", out var auth))
+            {
+                transformContext.ProxyRequest.Headers.Add("Authorization", auth.ToString());
+            }
+        });
     });
 
 var app = builder.Build();
