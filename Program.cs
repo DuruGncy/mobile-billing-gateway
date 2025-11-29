@@ -1,36 +1,65 @@
-using AspNetCoreRateLimit;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Memory;
-using Ocelot.DependencyInjection;
-using Ocelot.Middleware;
+using Microsoft.Extensions.DependencyInjection;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Transforms;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Required for SwaggerForOcelot
+// Required for Swagger UI
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer(); // adds IApiDescriptionGroupCollectionProvider
-builder.Services.AddSwaggerGen(); // must be here even if gateway has no controllers
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-// Add Ocelot configuration
-builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
-builder.Services.AddOcelot(builder.Configuration);
-
-// Swagger for Ocelot
-builder.Services.AddSwaggerForOcelot(builder.Configuration);
-
-// Memory cache for manual rate limiting
+// Memory cache for rate limiting
 builder.Services.AddMemoryCache();
+
+// Add YARP Reverse Proxy
+builder.Services.AddReverseProxy()
+    .LoadFromMemory(new[]
+    {
+        new RouteConfig
+        {
+            RouteId = "all_api",
+            Match = new RouteMatch
+            {
+                Path = "/api/{**catch-all}"
+            },
+            ClusterId = "api_cluster"
+        },
+        new RouteConfig
+        {
+            RouteId = "swagger",
+            Match = new RouteMatch
+            {
+                Path = "/swagger/v1/swagger.json"
+            },
+            ClusterId = "api_cluster"
+        }
+    },
+    new[]
+    {
+        new ClusterConfig
+        {
+            ClusterId = "api_cluster",
+            Destinations = new Dictionary<string, DestinationConfig>
+            {
+                { "destination1", new DestinationConfig { Address = "https://bill-pay-api.onrender.com/" } }
+            }
+        }
+    });
 
 var app = builder.Build();
 
 app.UseRouting();
 
-app.MapControllers(); // register controllers / swagger endpoints
+app.MapControllers(); // Swagger endpoints
 
-// --- Logging + Manual rate-limiting middleware ---
+// --- Logging + manual rate limiting middleware ---
 app.Use(async (context, next) =>
 {
     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
     var logFile = "gateway-logs.txt";
 
     var request = context.Request;
@@ -45,12 +74,11 @@ app.Use(async (context, next) =>
     Console.WriteLine($"Path: {path}");
     Console.WriteLine($"Source IP: {sourceIp}");
 
-    // --- Manual memory-based rate limiting for /query-bill only ---
+    // Manual rate limiting for /query-bill
     if (context.Request.Path.Equals("/api/v1/MobileProviderApp/query-bill", StringComparison.OrdinalIgnoreCase))
     {
         var subscriberNo = context.Request.Query["subscriberNo"].FirstOrDefault() ?? "unknown";
         var cacheKey = $"rate_limit:{subscriberNo}:{DateTime.UtcNow:yyyyMMdd}";
-
         var memoryCache = app.Services.GetRequiredService<IMemoryCache>();
 
         var count = memoryCache.GetOrCreate(cacheKey, entry =>
@@ -63,7 +91,7 @@ app.Use(async (context, next) =>
         {
             context.Response.StatusCode = 429;
             await context.Response.WriteAsync("Rate limit exceeded");
-            return; // stop pipeline
+            return;
         }
 
         memoryCache.Set(cacheKey, count + 1);
@@ -82,13 +110,14 @@ app.Use(async (context, next) =>
     Console.WriteLine("-------------------");
 });
 
-// Swagger UI for Ocelot
-app.UseSwaggerForOcelotUI(opt =>
+// Swagger UI
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    opt.PathToSwaggerGenerator = "/swagger/docs";
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mobile Provider API v1");
 });
 
-// Ocelot routing (must be last)
-await app.UseOcelot();
+// Reverse proxy (YARP)
+app.MapReverseProxy();
 
 app.Run();
