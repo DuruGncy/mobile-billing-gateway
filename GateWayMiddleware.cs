@@ -11,18 +11,12 @@ public class GatewayMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly IMemoryCache _cache;
-    private readonly string _jwtKey;
-    private readonly string _jwtIssuer;
-    private readonly string _jwtAudience;
     private readonly string _gatewaySecret;
 
     public GatewayMiddleware(RequestDelegate next, IMemoryCache cache, IConfiguration config)
     {
         _next = next;
         _cache = cache;
-        _jwtKey = config["Jwt_Key"] ?? "!";
-        _jwtIssuer = config["Jwt_Issuer"] ?? "";
-        _jwtAudience = config["Jwt_Audience"] ?? "";
         _gatewaySecret = config["GatewaySecret"] ?? "super-secret";
     }
 
@@ -45,37 +39,7 @@ public class GatewayMiddleware
         Console.WriteLine($"Source IP: {sourceIp}");
         Console.WriteLine($"Request size: {requestSize} bytes");
         Console.WriteLine($"Headers: {System.Text.Json.JsonSerializer.Serialize(headers)}");
-
-        // --- JWT Authentication check ---
-        bool isAuthenticated = false;
-        if (request.Headers.TryGetValue("Authorization", out var authHeader) &&
-            authHeader.ToString().StartsWith("Bearer "))
-        {
-            var token = authHeader.ToString().Substring("Bearer ".Length).Trim();
-            var tokenHandler = new JwtSecurityTokenHandler();
-            try
-            {
-                var key = Encoding.UTF8.GetBytes(_jwtKey);
-                tokenHandler.ValidateToken(token, new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = true,
-                    ValidIssuer = _jwtIssuer,
-                    ValidAudience = _jwtAudience,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                }, out var validatedToken);
-
-                isAuthenticated = true;
-            }
-            catch
-            {
-                isAuthenticated = false;
-            }
-        }
-
-        Console.WriteLine($"Authentication succeeded: {isAuthenticated}");
+        Console.WriteLine("-------------------");
 
         // --- Rate limiting example for /query-bill ---
         if (request.Path.StartsWithSegments("/api/v1/MobileProviderApp/query-bill"))

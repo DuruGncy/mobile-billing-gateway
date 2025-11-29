@@ -1,10 +1,5 @@
 using BillingGateway.Middelware;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Transforms;
 
 var builder = WebApplication.CreateBuilder(args);
 
