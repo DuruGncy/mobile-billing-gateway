@@ -96,7 +96,19 @@ app.Use(async (context, next) =>
         memoryCache.Set(cacheKey, count + 1);
     }
 
-    await next();
+    try
+    {
+        await next(); // let the request flow to the controllers
+    }
+    catch (Exception ex)
+    {
+        // Log as a "mapping template failure"
+        Console.WriteLine("Mapping/Transformation failure:");
+        Console.WriteLine($"Path: {context.Request.Path}");
+        Console.WriteLine($"Exception: {ex}");
+        context.Response.StatusCode = 400; // Bad Request for mapping errors
+        await context.Response.WriteAsync("Mapping template error");
+    }
 
     stopwatch.Stop();
     var response = context.Response;
