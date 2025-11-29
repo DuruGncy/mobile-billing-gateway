@@ -29,7 +29,7 @@ builder.Services.Configure<IpRateLimitOptions>(options =>
     {
         new RateLimitRule
         {
-            Endpoint = "/api/v1/MobileProviderApp/query-bill",
+            Endpoint = "/api/v1/MobileProviderApp/query-bill*",
             Period = "1d",
             Limit = 3
         }
@@ -68,7 +68,7 @@ app.Use(async (context, next) =>
     Console.WriteLine($"Request size: {requestSize} bytes");
     Console.WriteLine($"Auth succeeded: {authSucceeded}");
 
-    await File.AppendAllTextAsync(logFile, $"[{requestTime:O}] Request: {method} {path} from {sourceIp}, Auth: {authSucceeded}, Size: {requestSize} bytes\n");
+    //await File.AppendAllTextAsync(logFile, $"[{requestTime:O}] Request: {method} {path} from {sourceIp}, Auth: {authSucceeded}, Size: {requestSize} bytes\n");
 
     // Add X-ClientId header for rate limiting
     if (context.Request.Path.StartsWithSegments("/api/v1/MobileProviderApp/query-bill"))
@@ -76,6 +76,7 @@ app.Use(async (context, next) =>
         var subscriberNo = context.Request.Query["subscriberNo"].FirstOrDefault() ?? "unknown";
         context.Request.Headers["X-ClientId"] = subscriberNo;
     }
+
 
     await next();
 
@@ -91,7 +92,7 @@ app.Use(async (context, next) =>
     Console.WriteLine($"Response size: {responseSize} bytes");
     Console.WriteLine("-------------------");
 
-    await File.AppendAllTextAsync(logFile, $"[{DateTime.UtcNow:O}] Response: {statusCode}, Size: {responseSize} bytes, Latency: {latencyMs} ms\n\n");
+    //await File.AppendAllTextAsync(logFile, $"[{DateTime.UtcNow:O}] Response: {statusCode}, Size: {responseSize} bytes, Latency: {latencyMs} ms\n\n");
 });
 
 // Rate limiting
