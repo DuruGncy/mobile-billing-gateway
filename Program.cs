@@ -54,7 +54,7 @@ app.Use(async (context, next) =>
     var path = request.Path + request.QueryString;
     var headers = request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
     var sourceIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-    var requestSize = context.ContentLength ?? 0;
+    var requestSize = request.ContentLength ?? 0;
     var authSucceeded = context.User?.Identity?.IsAuthenticated ?? false;
 
     Console.WriteLine("----- Request -----");
