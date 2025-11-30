@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Builder; // Add this using directive at the top
 using BillingGateway.Middelware;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Transforms;
+using Microsoft.OpenApi.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +58,12 @@ app.UseRouting();
 app.MapControllers(); // Swagger endpoints
 
 app.UseGatewayMiddleware();
+
+// Swagger UI — load the API's swagger.json directly from the upstream API
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("https://bill-pay-api.onrender.com/swagger/v1/swagger.json", "Mobile Provider API v1");
+});
 
 // Reverse proxy (YARP)
 app.MapReverseProxy();
