@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 namespace BillingGateway.Middelware;
 
@@ -71,6 +66,7 @@ public class GatewayMiddleware
         stopwatch.Stop();
         var response = context.Response;
         var latencyMs = stopwatch.ElapsedMilliseconds;
+        var responseSizw = context.Response.ContentLength;
 
         // --- Logging response ---
         Console.WriteLine("----- Response -----");
